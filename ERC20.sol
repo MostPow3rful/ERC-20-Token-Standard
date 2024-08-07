@@ -1,27 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-error ERC20_NotEnoughAmount();
-error ERC20_NotAllowedAddress();
-
 contract ERC20 {
-    string immutable _NAME;
-    string immutable _SYMBOL;
+    string _NAME;
+    string _SYMBOL;
     address immutable _OWNER;
     uint256 _totalSupply;
 
     mapping(address userAddress => uint256 balance) _balanceOf;
     mapping(address owner => mapping(address spender => uint256 amount)) _allowance;
 
-    event Transfer(address indexed from, address indexed to, uint256 _amount);
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event Transfer(address from, address to, uint256 _amount);
+    event Approval(address owner, address spender, uint256 amount);
 
     modifier onlyOwner {
         require(msg.sender == _OWNER);
         _;
     }
 
-    constructor(string _name, string _symbol, uint256 _supply) {
+    constructor(string memory _name, string memory _symbol, uint256 _supply) {
         _OWNER = msg.sender;
         _NAME = _name;
         _SYMBOL = _symbol;
@@ -67,7 +64,7 @@ contract ERC20 {
     }
 
     function burn(uint256 _amount) external returns (bool) {
-        require(_balanceOf[msg.sender] >= _amount, ERC20_NotEnoughAmount());
+        require(_balanceOf[msg.sender] >= _amount, "Not Enough Amount");
 
         _balanceOf[msg.sender] -= _amount;
         _totalSupply -= _amount;
@@ -76,8 +73,8 @@ contract ERC20 {
     }
 
     function transfer(address _to, uint256 _amount) external returns (bool) {
-        require(_balanceOf[msg.sender] >= _amount, ERC20_NotEnoughAmount());
-        require(_to != address(0), ERC20_NotAllowedAddress());
+        require(_balanceOf[msg.sender] >= _amount, "Not Enough Amount");
+        require(_to != address(0), "Address 0x0 Not Allowed");
 
         _balanceOf[msg.sender] -= _amount;
         _balanceOf[_to] += _amount;
@@ -88,9 +85,9 @@ contract ERC20 {
     }
 
     function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
-        require(_allowance[_from][msg.sender] >= _amount, ERC20_NotEnoughAmount());
-        require(_from != address(0), ERC20_NotAllowedAddress());
-        require(_to != address(0), ERC20_NotAllowedAddress());
+        require(_allowance[_from][msg.sender] >= _amount, "Not Enough Amount");
+        require(_from != address(0), "Address 0x0 Not Allowed");
+        require(_to != address(0), "Address 0x0 Not Allowed");
 
         _allowance[_from][msg.sender] -= _amount;
 
@@ -102,4 +99,3 @@ contract ERC20 {
         return true;
     }
 }
-
